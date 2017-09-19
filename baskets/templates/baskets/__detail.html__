@@ -1,0 +1,29 @@
+{% extends 'baskets/base.html' %}
+
+{% block basket_id %} Basket {{ basket_id }} {% endblock %}
+
+{% block current_basket_value %} <i class="material-icons"style="font-size:36px;display:inline-flex;vertical-align: middle;">shopping_cart</i> {{ basket_sum|stringformat:".2f" }} EUR {% endblock %}
+
+{% block content %}
+
+  <div class="w3-row-padding w3-padding-16 w3-center" id="food">
+    <div class="w3-half">
+      <form class="w3-container" action="{% url 'add_item' basket_id %}" method="post">
+      {% csrf_token %}
+        <input class="w3-input" name="vendorID" type="number" step="1" placeholder="Vendor ID"><br> 
+        <input class="w3-input" name="price" type="number" step="any" placeholder="Price"><br> 
+        <button class="w3-button w3-circle w3-teal">add item</button>
+      </form>
+    </div>
+    <div class="w3-half">
+      <ul>
+        {% for item in item_list %}
+          <li>{{ item.price|stringformat:".2f" }} EUR
+          (#{{item.vendorID|stringformat:"3d" }}) <a href="{% url 'delete_item' basket_id item.id%}">x</a></li>
+        {% endfor %}
+        <hr style="width:130px;margin-left:0px">
+          <li><b>{{ basket_sum|stringformat:".2f" }} EUR</b>
+      </ul>
+    </div>
+  </div>
+{% endblock %}

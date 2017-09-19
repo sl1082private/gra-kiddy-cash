@@ -1,0 +1,22 @@
+{% extends 'baskets/base.html' %}
+
+{% block basket_id %}List verfügbarer Warenkörbe {% endblock %}
+
+
+{% block content %}
+  {% if basket_list %}
+      <table class="w3-table-all w3-hoverable w3-card-4">
+        <tr>
+          <th>Warenkorb</th>
+        </tr>
+      {% for basket in basket_list %}
+        <tr>
+          <td><a href="/baskets/{{ basket.id }}/">#{{ basket.id }}</a></td>
+        </tr>
+      {% endfor %}
+      </table>
+  {% else %}
+    <p>No baskets are available.</p>
+  {% endif %}
+
+{% endblock %}
