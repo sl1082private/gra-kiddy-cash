@@ -123,3 +123,6 @@ STATIC_URL = '/static/'
 
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/baskets/'
+
+## Force https
+SECURE_SSL_REDIRECT = True
