@@ -25,7 +25,7 @@ style="display:none;z-index:2;width:40%;min-width:300px" id="mySidebar">
     w3-button">Warenkorb hinzufügen</a> 
   <a href="{% url 'baskets' %}" onclick="w3_close()" class="w3-bar-item
     w3-button">Warenkörbe</a>
-  <a href="#" onclick="w3_close()" class="w3-bar-item w3-button">Verkäufer</a>
+  <a href="{% url 'vendors' %}" onclick="w3_close()" class="w3-bar-item w3-button">Verkäufer</a>
   <a href="{% url 'logout' %}" onclick="w3_close()" class="w3-bar-item w3-button">Logout</a>
 </nav>
 

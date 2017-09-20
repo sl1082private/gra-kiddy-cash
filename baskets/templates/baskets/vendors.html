@@ -3,21 +3,23 @@
 {% block basket_id %}Kra-Kiddy-Markt{% endblock %}
 
 {% block content %}
-  {% if vendor_list %}
+  {% if vendor_dict %}
       <table class="w3-table-all w3-hoverable w3-card-4">
         <tr>
-          <th>Verkaeufer</th>
+          <th>Verkäufer</th>
+          <th>Anzahl verkauft</th>
           <th>Umsatz</th>
         </tr>
-      {% for vendor in vendor_list %}
+      {% for vid, vres in vendor_dict.items %}
         <tr>
-            <td>{{ vendor.id }}</td>
-            <td>{{ vendor.turnover }}</td>
+            <td>{{ vid }}</td>
+            <td>{{ vres.0 }}</td>
+            <td>{{ vres.1|stringformat:".2f" }} EUR</td>
         </tr>
       {% endfor %}
       </table>
   {% else %}
-  <p>Es gibt noch keine Umsaetze für dieses Event. <br>
+  <p>Es gibt noch keine Umsätze für dieses Event. <br>
   Warenkorb <a href="{% url 'add_basket'%}">anlegen</a>?</p>
   {% endif %}
 

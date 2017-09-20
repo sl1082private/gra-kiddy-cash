@@ -6,10 +6,32 @@ from django.shortcuts import get_list_or_404, get_object_or_404
 from django.db.models import Sum
 from django.contrib.auth.decorators import login_required
 
+import collections
+
 from .models import Basket, Item
 
 # Create your views here.
 
+@login_required
+def redirect_index(request):
+  return HttpResponseRedirect('baskets')
+
+@login_required
+def vendors(request):
+  vendor_dict = dict()
+  item_list = Item.objects.all()
+  for item in item_list:
+    if not item.vendorID in vendor_dict:
+      vendor_dict[item.vendorID] = [1, item.price]
+    else:
+      vendor_dict[item.vendorID][0] += 1
+      vendor_dict[item.vendorID][1] += item.price
+
+  vo = collections.OrderedDict(sorted(vendor_dict.items()))
+  context = {
+      'vendor_dict': vo,
+  }
+  return render(request, 'baskets/vendors.html', context)
 
 @login_required
 def baskets(request):
