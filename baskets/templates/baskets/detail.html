@@ -1,6 +1,6 @@
 {% extends 'baskets/base.html' %}
 
-{% block basket_id %} Warenkorb {{ basket_id }} {% endblock %}
+{% block basket_id %} Korb {{ basket_id }} {% endblock %}
 
 {% block current_basket_value %} <i class="material-icons"style="font-size:36px;display:inline-flex;vertical-align: middle;">shopping_cart</i> {{ basket_sum|stringformat:".2f" }} EUR {% endblock %}
 
