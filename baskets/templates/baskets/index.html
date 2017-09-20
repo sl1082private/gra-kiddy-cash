@@ -1,22 +1,26 @@
 {% extends 'baskets/base.html' %}
 
-{% block basket_id %}List verfügbarer Warenkörbe {% endblock %}
-
+{% block basket_id %}Gra-Kiddy-Markt{% endblock %}
 
 {% block content %}
   {% if basket_list %}
       <table class="w3-table-all w3-hoverable w3-card-4">
         <tr>
           <th>Warenkorb</th>
+          <th>Besitzer</th>
+          <th>Datum</th>
         </tr>
       {% for basket in basket_list %}
         <tr>
-          <td><a href="/baskets/{{ basket.id }}/">#{{ basket.id }}</a></td>
+            <td><a href="/baskets/{{ basket.id }}/">Korb {{ basket.id }}</a></td>
+            <td>{{ basket.created_by }}</td>
+            <td>{{ basket.last_modified }}</td>
         </tr>
       {% endfor %}
       </table>
   {% else %}
-    <p>No baskets are available.</p>
+  <p>Es gibt noch keine Warenkörbe für dieses Event. <br>
+  Warenkorb <a href="{% url 'add_basket'%}">anlegen</a>?</p>
   {% endif %}
 
 {% endblock %}

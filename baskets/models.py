@@ -41,6 +41,7 @@ class Item(models.Model):
           # not in the database yet. Otherwise it would
           # have pk
           self.created = timezone.now()
+          self.basket.save()
       super(Item, self).save(args, kwargs)
 
 
