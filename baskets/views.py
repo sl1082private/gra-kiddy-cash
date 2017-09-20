@@ -35,7 +35,7 @@ def vendors(request):
 
 @login_required
 def baskets(request):
-  basket_list = Basket.objects.order_by('last_modified')
+  basket_list = Basket.objects.order_by('-last_modified')
   context = {
       'basket_list': basket_list,
       }
