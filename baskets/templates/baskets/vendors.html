@@ -1,0 +1,24 @@
+{% extends 'baskets/base.html' %}
+
+{% block basket_id %}Kra-Kiddy-Markt{% endblock %}
+
+{% block content %}
+  {% if vendor_list %}
+      <table class="w3-table-all w3-hoverable w3-card-4">
+        <tr>
+          <th>Verkaeufer</th>
+          <th>Umsatz</th>
+        </tr>
+      {% for vendor in vendor_list %}
+        <tr>
+            <td>{{ vendor.id }}</td>
+            <td>{{ vendor.turnover }}</td>
+        </tr>
+      {% endfor %}
+      </table>
+  {% else %}
+  <p>Es gibt noch keine Umsaetze für dieses Event. <br>
+  Warenkorb <a href="{% url 'add_basket'%}">anlegen</a>?</p>
+  {% endif %}
+
+{% endblock %}
