@@ -14,7 +14,8 @@
         step="1" placeholder="Verkäufer" required><br> 
         <input class="w3-input w3-border" name="price" type="number"
         step="any" placeholder="Preis" required><br> 
-        <button class="w3-button w3-circle w3-red">+</button>
+        <button class="w3-button w3-circle w3-red mybtn btn_plus">+</button>
+        <a href="{% url 'add_basket' %}" class="mybtn btn_payed">bezahlt</a>
       </form>
     </div>
     <div class="w3-half">
