@@ -14,7 +14,7 @@
         <tr>
             <td><a href="/baskets/{{ basket.id }}/">Korb {{ basket.id }}</a></td>
             <td>{{ basket.created_by }}</td>
-            <td>{{ basket.last_modified }}</td>
+            <td>{{ basket.last_modified|date:'H:i (d. N y)' }}</td>
         </tr>
       {% endfor %}
       </table>
