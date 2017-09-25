@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 
 import collections
 
-from .models import Basket, Item
+from .models import Basket, Item, Event, CurrentEvent
 
 # Create your views here.
 
@@ -19,7 +19,8 @@ def redirect_index(request):
 @login_required
 def vendors(request):
   vendor_dict = dict()
-  item_list = Item.objects.all()
+  #item_list = Item.objects.all()
+  item_list = Item.objects.filter(event=get_current_event())
   for item in item_list:
     if not item.vendorID in vendor_dict:
       vendor_dict[item.vendorID] = [1, item.price]
@@ -35,7 +36,7 @@ def vendors(request):
 
 @login_required
 def baskets(request):
-  basket_list = Basket.objects.order_by('-last_modified')
+  basket_list = Basket.objects.filter(event=get_current_event()).order_by('-last_modified')
   context = {
       'basket_list': basket_list,
       }
@@ -70,19 +71,24 @@ def delete_item(request, basket_id, item_id):
   item.delete()
   return HttpResponseRedirect(reverse('detail', args=(basket_id,)))
 
-
+def get_current_event():
+  current_event = CurrentEvent.objects.latest('last_touched')
+  #event = get_object_or_404(Event, pk=current_event.event_id)
+  return current_event.event_id
+  #return event
 
 @login_required
 def add_item(request, basket_id):
   basket = get_object_or_404(Basket, pk=basket_id)
   item = Item(basket=basket, vendorID=request.POST['vendorID'],
-      price=request.POST['price'],created_by=request.user)
+      price=request.POST['price'],created_by=request.user,
+      event=get_current_event())
   item.save()
   return HttpResponseRedirect(reverse('detail', args=(basket.id,)))
 
 
 @login_required
 def add_basket(request):
-  basket = Basket(created_by=request.user)
+  basket = Basket(created_by=request.user, event=get_current_event())
   basket.save()
   return HttpResponseRedirect(reverse('detail', args=(basket.id,)))
