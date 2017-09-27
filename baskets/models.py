@@ -13,7 +13,7 @@ class Event(models.Model):
 
   def __str__(self):
 #    return "Event '{}' ({})".format(self.event_name, self.event_date)
-    return "{}".format(self.event_name)
+    return "ID{}: {}".format(self.pk, self.event_name)
 
   def save(self, *args, **kwargs):
       if not self.pk:
@@ -53,7 +53,7 @@ class Item(models.Model):
   price = models.FloatField(default=0.0, help_text="price in EUR")
   created_by = models.ForeignKey(User)#, unique=True)
   created = models.DateTimeField('date created')
-  event = models.ForeignKey(Event, default=1)
+#  event = models.ForeignKey(Event, default=1)
 
   def __str__(self):
     return "ID{}: {:.2f} EUR (vendor: {}; basket: {})".format(self.pk, self.price, self.vendorID, self.basket.id)

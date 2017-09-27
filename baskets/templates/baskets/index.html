@@ -1,6 +1,6 @@
 {% extends 'baskets/base.html' %}
 
-{% block basket_id %}Kra-Kiddy-Markt{% endblock %}
+{% block basket_id %}{{ current_event }}{% endblock %}
 
 {% block content %}
   {% if basket_list %}
@@ -16,7 +16,7 @@
             <td><a href="/baskets/{{ basket.id }}/">Korb {{ basket.id }}</a></td>
             <td>{{ basket.created_by }}</td>
             <td>{{ basket.last_modified|date:'H:i (d. N y)' }}</td>
-            <td>{{ basket.event }}</td>
+            <td>{{ basket.event.event_name }}</td>
         </tr>
       {% endfor %}
       </table>
