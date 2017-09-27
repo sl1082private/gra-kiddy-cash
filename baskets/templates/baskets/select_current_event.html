@@ -1,0 +1,38 @@
+{% extends 'baskets/base.html' %}
+
+{% block basket_id %} Korb {{ basket_id }} {% endblock %}
+
+{% block current_basket_value %} <i class="material-icons"style="font-size:36px;display:inline-flex;vertical-align: middle;">shopping_cart</i> {{ basket_sum|stringformat:".2f" }} EUR {% endblock %}
+
+{% block content %}
+
+  <div class="w3-row-padding w3-padding-16 w3-center" id="food">
+    <div class="w3-half w3-padding-16">
+      <form class="w3-container" action="{% url 'add_item' basket_id %}" method="post">
+      {% csrf_token %}
+        <input class="w3-input w3-border" name="vendorID" type="number"
+        step="1" placeholder="Verkäufer" required><br> 
+        <input class="w3-input w3-border" name="price" type="number"
+        step="any" placeholder="Preis" required><br> 
+        <button class="w3-button w3-circle w3-red mybtn btn_plus">+</button>
+        <a href="{% url 'add_basket' %}" class="mybtn btn_payed">bezahlt</a>
+      </form>
+    </div>
+    <div class="w3-half">
+      <table class="w3-table-all w3-card-4">
+        <tr>
+          <th>Preis</th>
+          <th>Verkäufer</th>
+          <th>Löschen</th>
+        </tr>
+      {% for item in item_list %}
+        <tr>
+          <td>{{ item.price|stringformat:".2f" }} EUR</td>
+          <td>(#{{item.vendorID|stringformat:"4.0f" }})</td>
+          <td><a href="{% url 'delete_item' basket_id item.id%}">X</a></td>
+        </tr>
+      {% endfor %}
+      </table>
+    </div>
+  </div>
+{% endblock %}
