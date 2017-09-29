@@ -6,6 +6,9 @@ from django.shortcuts import get_list_or_404, get_object_or_404
 from django.db.models import Sum
 from django.contrib.auth.decorators import login_required
 
+from io import BytesIO
+from reportlab.pdfgen import canvas
+
 import collections
 
 from .models import Basket, Item, Event, CurrentEvent
@@ -16,31 +19,13 @@ from .models import Basket, Item, Event, CurrentEvent
 def redirect_index(request):
   return HttpResponseRedirect('baskets')
 
-@login_required
-def vendors_old(request):
-  vendor_dict = dict()
-  #item_list = Item.objects.all()
-  item_list = Item.objects.filter(event=get_current_event())
-  for item in item_list:
-    if not item.vendorID in vendor_dict:
-      vendor_dict[item.vendorID] = [1, item.price]
-    else:
-      vendor_dict[item.vendorID][0] += 1
-      vendor_dict[item.vendorID][1] += item.price
-
-  vo = collections.OrderedDict(sorted(vendor_dict.items()))
-  context = {
-      'vendor_dict': vo,
-  }
-  return render(request, 'baskets/vendors.html', context)
-
 
 @login_required
 def vendors(request):
+  current_event = get_current_event()
   vendor_dict = dict()
-  baskets_list = Basket.objects.filter(event=get_current_event())
+  baskets_list = Basket.objects.filter(event=current_event)
   item_list = Item.objects.all()
-  #item_list = Item.objects.filter(event=get_current_event())
   for item in item_list:
     if not item.basket in baskets_list:
     # only consider items in baskets that belong to the current event
@@ -54,8 +39,40 @@ def vendors(request):
   vo = collections.OrderedDict(sorted(vendor_dict.items()))
   context = {
       'vendor_dict': vo,
+      'current_event': current_event.event_name,
   }
   return render(request, 'baskets/vendors.html', context)
+
+
+
+@login_required
+def vendors_all(request):
+  current_event = get_current_event()
+  vendor_dict = dict()
+  baskets_list = Basket.objects.filter(event=current_event)
+  item_list = Item.objects.all()
+  for item in item_list:
+    if not item.basket in baskets_list:
+    # only consider items in baskets that belong to the current event
+      continue
+    if not item.vendorID in vendor_dict:
+      vendor_dict[item.vendorID] = [1, item.price]
+    else:
+      vendor_dict[item.vendorID][0] += 1
+      vendor_dict[item.vendorID][1] += item.price
+
+## uncomment to list also vendors w/o any sold items:
+  max_vid = max(vendor_dict.keys())
+  for vid in range(max_vid):
+      if not vid in vendor_dict:
+          vendor_dict[vid] = [0, 0]
+
+  vo = collections.OrderedDict(sorted(vendor_dict.items()))
+  context = {
+      'vendor_dict': vo,
+      'current_event': current_event.event_name,
+  }
+  return render(request, 'baskets/vendors_all.html', context)
 
 
 
@@ -108,8 +125,7 @@ def get_current_event():
 def add_item(request, basket_id):
   basket = get_object_or_404(Basket, pk=basket_id)
   item = Item(basket=basket, vendorID=request.POST['vendorID'],
-      price=request.POST['price'],created_by=request.user,
-      event=get_current_event())
+      price=request.POST['price'],created_by=request.user)
   item.save()
   return HttpResponseRedirect(reverse('detail', args=(basket.id,)))
 
@@ -119,3 +135,29 @@ def add_basket(request):
   basket = Basket(created_by=request.user, event=get_current_event())
   basket.save()
   return HttpResponseRedirect(reverse('detail', args=(basket.id,)))
+
+
+@login_required
+def vendors_to_pdf(request):
+    # Create the HttpResponse object with the appropriate PDF headers.
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="somefilename.pdf"'
+
+    buffer = BytesIO()
+
+    # Create the PDF object, using the BytesIO object as its "file."
+    p = canvas.Canvas(buffer)
+
+    # Draw things on the PDF. Here's where the PDF generation happens.
+    # See the ReportLab documentation for the full list of functionality.
+    p.drawString(100, 100, "Hello world.")
+
+    # Close the PDF object cleanly.
+    p.showPage()
+    p.save()
+
+    # Get the value of the BytesIO buffer and write it to the response.
+    pdf = buffer.getvalue()
+    buffer.close()
+    response.write(pdf)
+    return response
