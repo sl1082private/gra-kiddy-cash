@@ -9,14 +9,14 @@
           <th>Warenkorb</th>
           <th>Besitzer</th>
           <th>Datum</th>
-          <th>Event</th>
+{#          <th>Event</th>  #}
         </tr>
       {% for basket in basket_list %}
         <tr>
             <td><a href="/baskets/{{ basket.id }}/">Korb {{ basket.id }}</a></td>
             <td>{{ basket.created_by }}</td>
             <td>{{ basket.last_modified|date:'H:i (d. N y)' }}</td>
-            <td>{{ basket.event.event_name }}</td>
+{#            <td>{{ basket.event.event_name }}</td>  #}
         </tr>
       {% endfor %}
       </table>
