@@ -2,6 +2,7 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from baskets import views as baskets_views
+#from django.views.generic.base import RedirectView
 
 urlpatterns = [
     url(r'^$', baskets_views.redirect_index, name='index'),
@@ -12,4 +13,5 @@ urlpatterns = [
     url(r'^vendors/$', baskets_views.vendors, name='vendors'),
     url(r'^vendors_all/$', baskets_views.vendors_all, name='vendors_all'),
     url(r'^vendors/vendors_to_pdf/$', baskets_views.vendors_to_pdf, name='vendors_to_pdf'),
+#    url(r'^.*$', RedirectView.as_view(url='baskets', permanent=False), name='index2'),
 ]

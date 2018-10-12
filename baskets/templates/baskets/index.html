@@ -1,6 +1,7 @@
 {% extends 'baskets/base.html' %}
 
 {% block basket_id %}{{ current_event }}{% endblock %}
+{% block current_basket_value %}{{ current_user }}{% endblock %}
 
 {% block content %}
   {% if basket_list %}

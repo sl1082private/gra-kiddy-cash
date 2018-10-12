@@ -26,20 +26,26 @@ def vendors(request):
   vendor_dict = dict()
   baskets_list = Basket.objects.filter(event=current_event)
   item_list = Item.objects.all()
+  vtotal = 0
   for item in item_list:
     if not item.basket in baskets_list:
     # only consider items in baskets that belong to the current event
       continue
     if not item.vendorID in vendor_dict:
-      vendor_dict[item.vendorID] = [1, item.price]
+      vendor_dict[item.vendorID] = [1, item.price, 0.88*item.price, 0.12*item.price]
     else:
       vendor_dict[item.vendorID][0] += 1
       vendor_dict[item.vendorID][1] += item.price
+      vendor_dict[item.vendorID][2] += 0.88*item.price
+      vendor_dict[item.vendorID][3] += 0.12*item.price
+    vtotal += item.price
 
   vo = collections.OrderedDict(sorted(vendor_dict.items()))
   context = {
       'vendor_dict': vo,
       'current_event': current_event.event_name,
+      'vtotal': [vtotal,0.88*vtotal,0.12*vtotal],
+      'current_user': request.user,
   }
   return render(request, 'baskets/vendors.html', context)
 
@@ -51,26 +57,32 @@ def vendors_all(request):
   vendor_dict = dict()
   baskets_list = Basket.objects.filter(event=current_event)
   item_list = Item.objects.all()
+  vtotal = 0
   for item in item_list:
     if not item.basket in baskets_list:
     # only consider items in baskets that belong to the current event
       continue
     if not item.vendorID in vendor_dict:
-      vendor_dict[item.vendorID] = [1, item.price]
+      vendor_dict[item.vendorID] = [1, item.price, 0.88*item.price, 0.12*item.price]
     else:
       vendor_dict[item.vendorID][0] += 1
       vendor_dict[item.vendorID][1] += item.price
+      vendor_dict[item.vendorID][2] += 0.88*item.price
+      vendor_dict[item.vendorID][3] += 0.12*item.price
+    vtotal += item.price
 
 ## uncomment to list also vendors w/o any sold items:
   max_vid = max(vendor_dict.keys())
   for vid in range(max_vid):
       if not vid in vendor_dict:
-          vendor_dict[vid] = [0, 0]
+          vendor_dict[vid] = [0, 0, 0, 0]
 
   vo = collections.OrderedDict(sorted(vendor_dict.items()))
   context = {
       'vendor_dict': vo,
       'current_event': current_event.event_name,
+      'vtotal': [vtotal, 0.88*vtotal, 0.12*vtotal],
+      'current_user': request.user,
   }
   return render(request, 'baskets/vendors_all.html', context)
 
@@ -79,10 +91,12 @@ def vendors_all(request):
 @login_required
 def baskets(request):
   current_event = get_current_event()
+  current_user = request.user
   basket_list = Basket.objects.filter(event=current_event).order_by('-last_modified')
   context = {
       'basket_list': basket_list,
       'current_event': current_event.event_name,
+      'current_user': current_user,
       }
   return render(request, 'baskets/index.html', context)
 ## two lines below achieve the same as 'render':

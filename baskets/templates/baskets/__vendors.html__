@@ -1,7 +1,6 @@
 {% extends 'baskets/base.html' %}
 
 {% block basket_id %}{{ current_event }}{% endblock %}
-{% block current_basket_value %}{{current_user}}{% endblock %}
 
 {% block content %}
   {% if vendor_dict %}
@@ -10,25 +9,14 @@
           <th>Verkäufer</th>
           <th>Anzahl verkauft</th>
           <th>Umsatz</th>
-          <th>Net (-12%)</th>
-          <th>12%</th>
         </tr>
       {% for vid, vres in vendor_dict.items %}
         <tr>
             <td>{{ vid }}</td>
             <td>{{ vres.0 }}</td>
             <td>{{ vres.1|stringformat:".2f" }} EUR</td>
-            <td>{{ vres.2|stringformat:".2f" }} EUR</td>
-            <td>{{ vres.3|stringformat:".2f" }} EUR</td>
         </tr>
       {% endfor %}
-        <tr>
-            <th> </th>
-            <th>Sum:</th>
-            <th>{{ vtotal.0|stringformat:".2f" }} EUR </th>
-            <th>{{ vtotal.1|stringformat:".2f" }} EUR </th>
-            <th>{{ vtotal.2|stringformat:".2f" }} EUR </th>
-        </tr>
       </table>
       <div class="w3-padding no-print">
           <a href="{% url 'vendors_all' %}" class="mybtn btn_vendors">Alle Verkäufer anzeigen</a>
