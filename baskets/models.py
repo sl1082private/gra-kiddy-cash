@@ -47,9 +47,28 @@ class Basket(models.Model):
       super(Basket, self).save(args, kwargs)
 
 
+class Vendor(models.Model):
+  first_name = models.CharField('first_name', max_length=127)
+  last_name = models.CharField('last_name', max_length=127)
+  vendor_number = models.IntegerField(default=0, help_text='Number assigned to vendor')
+  address = models.CharField('address', max_length=127, default=None, blank=True, null=True)
+  phone = models.CharField('phone', max_length=63, default=None, blank=True, null=True)
+  events=models.ManyToManyField(Event)
+
+  def __str__(self):
+    _evts = ",".join(str(ev) for ev in self.events.all())
+    return "#{} (ID{}): {} {} (Tel: {}; Address: {}) -- Events:{} ".format(self.vendor_number, self.pk, self.first_name, self.last_name, self.phone, self.address, _evts)
+    #return "{}".format(self.vendor_number)
+
+  class Meta:
+    ordering = ('vendor_number', )
+
+
 class Item(models.Model):
   basket = models.ForeignKey(Basket, on_delete=models.CASCADE)
-  vendorID = models.IntegerField(default=0, help_text="reference to vendor")
+# use this if you simply want to store a number referencing the vendor but w/o any checks
+#  vendorID = models.IntegerField(default=0, help_text="reference to vendor")
+  vendorID = models.ForeignKey(Vendor)
   price = models.FloatField(default=0.0, help_text="price in EUR")
   created_by = models.ForeignKey(User)#, unique=True)
   created = models.DateTimeField('date created')
@@ -66,8 +85,6 @@ class Item(models.Model):
           self.created = timezone.now()
           self.basket.save()
       super(Item, self).save(args, kwargs)
-
-
 
 class CurrentEvent(models.Model):
   event_id = models.ForeignKey(Event)

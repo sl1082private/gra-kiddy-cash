@@ -3,7 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.template import loader
 from django.shortcuts import get_list_or_404, get_object_or_404
-from django.db.models import Sum
+from django.db.models import Sum, Count,F
 from django.contrib.auth.decorators import login_required
 
 from io import BytesIO
@@ -11,9 +11,10 @@ from reportlab.pdfgen import canvas
 
 import collections
 
-from .models import Basket, Item, Event, CurrentEvent
+from .models import Basket, Item, Event, CurrentEvent, Vendor
 
-# Create your views here.
+from .forms import AddItemForm, VendorForm
+
 
 @login_required
 def redirect_index(request):
@@ -21,70 +22,23 @@ def redirect_index(request):
 
 
 @login_required
-def vendors(request):
+def vendors(request, show_all=False):
   current_event = get_current_event()
-  vendor_dict = dict()
-  baskets_list = Basket.objects.filter(event=current_event)
-  item_list = Item.objects.all()
-  vtotal = 0
-  for item in item_list:
-    if not item.basket in baskets_list:
-    # only consider items in baskets that belong to the current event
-      continue
-    if not item.vendorID in vendor_dict:
-      vendor_dict[item.vendorID] = [1, item.price, 0.88*item.price, 0.12*item.price]
-    else:
-      vendor_dict[item.vendorID][0] += 1
-      vendor_dict[item.vendorID][1] += item.price
-      vendor_dict[item.vendorID][2] += 0.88*item.price
-      vendor_dict[item.vendorID][3] += 0.12*item.price
-    vtotal += item.price
+  vendors = Vendor.objects.annotate(sales=Sum('item__price')).annotate(num_sales=Count('item')).filter(events__in=(current_event,))
+  vendors = vendors.annotate(sales_net=F('sales')*0.88).annotate(sales_12p=F('sales')*0.12)
+  vtotal = vendors.aggregate(sales_sum=Sum('sales'))
+  vtotal['sales_sum_net']=vtotal['sales_sum']*0.88
+  vtotal['sales_sum_12p']=vtotal['sales_sum']*0.12
 
-  vo = collections.OrderedDict(sorted(vendor_dict.items()))
   context = {
-      'vendor_dict': vo,
+      'show_all': show_all,
+      'vendors': vendors,
+      'vtotal': vtotal, #[vtotal,0.88*vtotal,0.12*vtotal],
       'current_event': current_event.event_name,
-      'vtotal': [vtotal,0.88*vtotal,0.12*vtotal],
       'current_user': request.user,
   }
-  return render(request, 'baskets/vendors.html', context)
+  return render(request, 'baskets/vendors_new.html', context)
 
-
-
-@login_required
-def vendors_all(request):
-  current_event = get_current_event()
-  vendor_dict = dict()
-  baskets_list = Basket.objects.filter(event=current_event)
-  item_list = Item.objects.all()
-  vtotal = 0
-  for item in item_list:
-    if not item.basket in baskets_list:
-    # only consider items in baskets that belong to the current event
-      continue
-    if not item.vendorID in vendor_dict:
-      vendor_dict[item.vendorID] = [1, item.price, 0.88*item.price, 0.12*item.price]
-    else:
-      vendor_dict[item.vendorID][0] += 1
-      vendor_dict[item.vendorID][1] += item.price
-      vendor_dict[item.vendorID][2] += 0.88*item.price
-      vendor_dict[item.vendorID][3] += 0.12*item.price
-    vtotal += item.price
-
-## uncomment to list also vendors w/o any sold items:
-  max_vid = max(vendor_dict.keys())
-  for vid in range(max_vid):
-      if not vid in vendor_dict:
-          vendor_dict[vid] = [0, 0, 0, 0]
-
-  vo = collections.OrderedDict(sorted(vendor_dict.items()))
-  context = {
-      'vendor_dict': vo,
-      'current_event': current_event.event_name,
-      'vtotal': [vtotal, 0.88*vtotal, 0.12*vtotal],
-      'current_user': request.user,
-  }
-  return render(request, 'baskets/vendors_all.html', context)
 
 
 
@@ -105,17 +59,46 @@ def baskets(request):
 
 
 @login_required
+def vendor_detail(request, vendor_number):
+  vendor = Vendor.objects.get(vendor_number=vendor_number)
+  if request.method == 'POST':
+    form = VendorForm(request.POST, instance=vendor)
+    if form.is_valid():
+      print ("form is valid, update db?")
+      form.save()
+      return HttpResponseRedirect(reverse('vendors'))
+  else:
+    form = VendorForm(instance=vendor)
+  context = {
+      'form': form,
+      'vendor_id': vendor_number,
+      'current_event': get_current_event().event_name,
+      'current_user': request.user,
+      }
+  return render(request, 'baskets/vendor_detail.html', context)
+
+
+@login_required
 def detail(request, basket_id):
-#  heading = "Content of <b>basket %s</b>:<br><p>\n" % basket_id
-#  item_list = Item.objects.filter(basket=basket_id)
-#  html = heading + '<br>\n'.join([i.__str__() for i in item_list])
-#  return HttpResponse(html)
+  if request.method == 'POST':
+    form = AddItemForm(request.POST)
+    if form.is_valid():
+      #print ("form is valid")
+      basket = get_object_or_404(Basket, pk=basket_id)
+      vendor = get_object_or_404(Vendor, vendor_number=request.POST['vendor'])
+      item = Item(basket=basket, vendorID=vendor, price=request.POST['price'], created_by=request.user)
+      item.save()
+    else:
+      print ("form is not valid")
+  else:
+    form = AddItemForm()
 ### The following fails, if there are no items assigned to a basket. We do
 ### not want this behavior.
 #  item_list = get_list_or_404(Item, basket=basket_id)
   item_list = Item.objects.filter(basket=basket_id)
   basket_sum = Item.objects.filter(basket=basket_id).aggregate(Sum('price'))
   context = {
+      'form': form,
       'basket_id': basket_id,
       'item_list': item_list,
       'basket_sum': basket_sum['price__sum'],
@@ -138,7 +121,8 @@ def get_current_event():
 @login_required
 def add_item(request, basket_id):
   basket = get_object_or_404(Basket, pk=basket_id)
-  item = Item(basket=basket, vendorID=request.POST['vendorID'],
+  vendor = get_object_or_404(Vendor, vendor_number=request.POST['vendorID'])
+  item = Item(basket=basket, vendorID=vendor,
       price=request.POST['price'],created_by=request.user)
   item.save()
   return HttpResponseRedirect(reverse('detail', args=(basket.id,)))

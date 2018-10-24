@@ -2,7 +2,13 @@
 
 {% block basket_id %} Korb {{ basket_id }} {% endblock %}
 
+{% comment %}
 {% block current_basket_value %} <i class="material-icons"style="font-size:36px;display:inline-flex;vertical-align: middle;">shopping_cart</i> {{ basket_sum|stringformat:".2f" }} EUR {% endblock %}
+{% block current_basket_value %} <img src="shopping_chart.png"> {{ basket_sum|stringformat:".2f" }} EUR {% endblock %}
+{% endcomment %}
+
+{% block current_basket_value %} {{ basket_sum|stringformat:".2f" }} EUR {% endblock %}
+ 
 
 {% block content %}
 
@@ -14,8 +20,12 @@
         step="1" placeholder="Verkäufer" required><br> 
         <input class="w3-input w3-border" name="price" type="number"
         step="any" placeholder="Preis" required><br> 
-        <button class="w3-button w3-circle w3-red mybtn btn_plus">+</button>
-        <a href="{% url 'add_basket' %}" class="mybtn btn_payed">bezahlt</a>
+{#      <button class="w3-button w3-circle w3-red mybtn btn_plus">hinzufügen</button>   #}
+        <button class="mybtn btn_add">hinzufügen</button>
+        {#        <a href="{% url 'add_basket' %}" class="mybtn btn_payed">Neu</a>  #}
+        {% if item_list %}
+          <a href="{% url 'add_basket' %}" class="mybtn btn_newbasket">neu</a>
+        {% endif %}
       </form>
     </div>
     <div class="w3-half">

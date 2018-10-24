@@ -1,0 +1,57 @@
+{% extends 'baskets/base.html' %}
+
+{% block basket_id %}{{ current_event }}{% endblock %}
+{% block current_basket_value %}{{current_user}}{% endblock %}
+
+{% block content %}
+  {% if vendors %}
+      <table class="w3-table-all w3-hoverable w3-card-4">
+        <tr>
+          <th>Verkäufer</th>
+          <th>Anzahl verkauft</th>
+          <th>Umsatz</th>
+          <th>Net (-12%)</th>
+          <th>12%</th>
+        </tr>
+      {% for vendor in vendors %}
+        {% if vendor.num_sales > 0 or show_all %}
+          <tr>
+            {% if request.user.is_staff %}
+                  <td> <a href="{% url 'vendor_detail' vendor.vendor_number %}" class="boldlink">{{ vendor.vendor_number }}</a></td>
+            {% else %}
+              <td>{{ vendor.vendor_number }}</td>
+            {% endif %}
+            <td>{{ vendor.num_sales }} </td>
+            {% if vendor.num_sales > 0 %}
+                <td>{{ vendor.sales|floatformat:-2 }} EUR</td>
+                <td>{{ vendor.sales_net|floatformat:-2 }} EUR</td>
+                <td>{{ vendor.sales_12p|floatformat:-2 }} EUR</td>
+            {% else %}
+                <td> - </td>
+                <td> - </td>
+                <td> - </td>
+            {% endif %}
+          </tr>
+        {% endif %}
+      {% endfor %}
+        <tr>
+            <th> </th>
+            <th>Sum:</th>
+            <th>{{ vtotal.sales_sum|floatformat:-2 }} EUR </th>
+            <th>{{ vtotal.sales_sum_net|floatformat:-2 }} EUR </th>
+            <th>{{ vtotal.sales_sum_12p|floatformat:-2 }} EUR </th>
+        </tr>
+      </table>
+      <div class="w3-padding no-print">
+        {% if not show_all %}
+          <a href="{% url 'vendors_all' %}" class="mybtn btn_vendors">Alle Verkäufer anzeigen</a>
+        {% else %}
+          <a href="{% url 'vendors' %}" class="mybtn btn_vendors">Verkäufer ohne Umsatz ausblenden</a>
+        {% endif %}
+      </div>
+  {% else %}
+  <p>Es gibt noch keine Umsätze für dieses Event. <br>
+  Warenkorb <a href="{% url 'add_basket'%}">anlegen</a>?</p>
+  {% endif %}
+
+{% endblock %}

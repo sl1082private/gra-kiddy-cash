@@ -40,3 +40,10 @@
   border: 2px solid #4CAF50;
 
 }
+
+.boldlink {
+    color: black;
+    font-weight: bold;
+}
+
+.boldlink:hover{ color:gray; }

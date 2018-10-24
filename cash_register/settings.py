@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
@@ -85,7 +86,7 @@ WSGI_APPLICATION = 'cash_register.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'krakiddy',
+        'NAME': 'krakiddy_oct2018',
         'USER': 'sebastian',
         'PASSWORD': 'sl1082',
         'HOST': 'localhost',
@@ -138,4 +139,4 @@ LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/baskets/'
 
 ## Force https (uncomment for local testing)
-SECURE_SSL_REDIRECT = True
+SECURE_SSL_REDIRECT = False

@@ -1,0 +1,40 @@
+{% extends 'baskets/base.html' %}
+
+{% load widget_tweaks %}
+
+{% block basket_id %} Details zu Verkäufer {{vendor_id}} {% endblock %}
+{% block current_basket_value %} &nbsp; {% endblock %}
+{% comment %}
+{% block basket_id %} &nbsp; {% endblock %}
+{% block current_basket_value %} Details zu Verkäufer {{vendor_id}} {% endblock %}
+{% endcomment %}
+ 
+
+{% block content %}
+
+  <div class="w3-row-padding w3-padding-16 w3-center" id="food">
+{% comment %}
+    <div class="w3-half w3-padding-16">
+{% endcomment %}
+      <form class="w3-container" method="post">
+      {% csrf_token %}
+{% comment %}
+      {{ form.as_p }}
+{% endcomment %}
+  {% for hidden_field in form.hidden_fields %}
+    {{ hidden_field.errors }}
+    {{ hidden_field }}
+  {% endfor %}
+  {% for field in form.visible_fields %}
+    <p>
+    {{ field.errors }}
+    {% render_field field class="w3-input w3-border" placeholder=field.name %}
+    </p>
+  {% endfor %}
+        <button class="mybtn btn_add">Save</button>
+    <div class="w3-right boldlink"> <a href="{% url 'vendors' %}"> zurück zu Verkäufer </a> </div>
+{% comment %}
+    </div>
+{% endcomment %}
+  </div>
+{% endblock %}
