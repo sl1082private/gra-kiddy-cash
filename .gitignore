@@ -7,3 +7,5 @@ db.sqlite3
 .DS_Store
 cash_register/settings.py
 djangoenv
+kkenv
+baskets/migrations

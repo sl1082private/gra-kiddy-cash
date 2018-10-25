@@ -7,7 +7,7 @@ from django.db.models import Sum, Count,F,Q
 from django.contrib.auth.decorators import login_required
 
 from io import BytesIO
-from reportlab.pdfgen import canvas
+#from reportlab.pdfgen import canvas
 
 import collections
 
@@ -25,22 +25,26 @@ def redirect_index(request):
 def vendors(request, show_all=False):
   current_event = get_current_event()
   ceid = current_event.id
-  print ("current_event (id={}): {}".format(ceid, current_event))
-  test_q = Item.objects.filter(basket__event__in=(current_event,))
-  print ("test query of items in {}: {}".format(current_event, test_q))
+  #print ("current_event (id={}): {}".format(ceid, current_event))
+  #test_q = Item.objects.filter(basket__event__in=(current_event,))
+  #print ("test query of items in {}: {}".format(current_event, test_q))
   vendors = Vendor.objects.filter(events__in=(current_event,))
   #sales = Sum('item__price', filter=Q(item__basket__event__in=(current_event,)) )
-  sales = Sum('item__price', filter=Q(item__basket__event__id__gt=ceid) )
+  #sales = Sum('item__price', filter=Q(item__basket__event__id=ceid) )
+  sales = Sum('item__price', filter=Q(item__basket__event=current_event) )
   #num_sales = Count('item', filter=Q(item__basket__event__in=(current_event,)) )
   num_sales = Count('item', filter=Q(item__basket__event=current_event) )
   sales_net = F('sales')*0.88
   sales_12p = F('sales')*0.12
-  print (str( vendors.annotate(sales=sales).annotate(num_sales=num_sales).query ) )
+  #print (str( vendors.annotate(sales=sales).annotate(num_sales=num_sales).query ) )
   vendors = vendors.annotate(sales=sales).annotate(num_sales=num_sales)
   vendors = vendors.annotate(sales_net=sales_net).annotate(sales_12p=sales_12p)
   vtotal = vendors.aggregate(sales_sum=Sum('sales'))
-  vtotal['sales_sum_net']=vtotal['sales_sum']*0.88
-  vtotal['sales_sum_12p']=vtotal['sales_sum']*0.12
+  if vtotal['sales_sum']:
+    vtotal['sales_sum_net']=vtotal['sales_sum']*0.88
+    vtotal['sales_sum_12p']=vtotal['sales_sum']*0.12
+  else:
+    vtotal = {}
 
   context = {
       'show_all': show_all,
@@ -147,27 +151,27 @@ def add_basket(request):
   return HttpResponseRedirect(reverse('detail', args=(basket.id,)))
 
 
-@login_required
-def vendors_to_pdf(request):
-    # Create the HttpResponse object with the appropriate PDF headers.
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="somefilename.pdf"'
-
-    buffer = BytesIO()
-
-    # Create the PDF object, using the BytesIO object as its "file."
-    p = canvas.Canvas(buffer)
-
-    # Draw things on the PDF. Here's where the PDF generation happens.
-    # See the ReportLab documentation for the full list of functionality.
-    p.drawString(100, 100, "Hello world.")
-
-    # Close the PDF object cleanly.
-    p.showPage()
-    p.save()
-
-    # Get the value of the BytesIO buffer and write it to the response.
-    pdf = buffer.getvalue()
-    buffer.close()
-    response.write(pdf)
-    return response
+# @login_required
+# def vendors_to_pdf(request):
+#     # Create the HttpResponse object with the appropriate PDF headers.
+#     response = HttpResponse(content_type='application/pdf')
+#     response['Content-Disposition'] = 'attachment; filename="somefilename.pdf"'
+# 
+#     buffer = BytesIO()
+# 
+#     # Create the PDF object, using the BytesIO object as its "file."
+#     p = canvas.Canvas(buffer)
+# 
+#     # Draw things on the PDF. Here's where the PDF generation happens.
+#     # See the ReportLab documentation for the full list of functionality.
+#     p.drawString(100, 100, "Hello world.")
+# 
+#     # Close the PDF object cleanly.
+#     p.showPage()
+#     p.save()
+# 
+#     # Get the value of the BytesIO buffer and write it to the response.
+#     pdf = buffer.getvalue()
+#     buffer.close()
+#     response.write(pdf)
+#     return response

@@ -8,7 +8,7 @@ class Event(models.Model):
   event_name = models.CharField('name of event', max_length=127)
   event_date = models.DateField('date of event')
   description = models.TextField('description of event')
-  created_by = models.ForeignKey(User)
+  created_by = models.ForeignKey(User, on_delete=models.PROTECT)
   created = models.DateTimeField('date created')
 
   def __str__(self):
@@ -28,9 +28,9 @@ class Event(models.Model):
 class Basket(models.Model):
   created = models.DateTimeField('date created')
   last_modified = models.DateTimeField('date last modified')
-  created_by = models.ForeignKey(User)#, unique=True) 
+  created_by = models.ForeignKey(User, on_delete=models.PROTECT)#, unique=True) 
   is_complete = models.BooleanField(default=False)
-  event = models.ForeignKey(Event, default=1)
+  event = models.ForeignKey(Event, default=1, on_delete=models.PROTECT)
 
   def __str__(self):
     return "basket_{}".format(self.id)
@@ -68,9 +68,9 @@ class Item(models.Model):
   basket = models.ForeignKey(Basket, on_delete=models.CASCADE)
 # use this if you simply want to store a number referencing the vendor but w/o any checks
 #  vendorID = models.IntegerField(default=0, help_text="reference to vendor")
-  vendorID = models.ForeignKey(Vendor)
+  vendorID = models.ForeignKey(Vendor, on_delete=models.PROTECT)
   price = models.FloatField(default=0.0, help_text="price in EUR")
-  created_by = models.ForeignKey(User)#, unique=True)
+  created_by = models.ForeignKey(User, on_delete=models.PROTECT)#, unique=True)
   created = models.DateTimeField('date created')
 #  event = models.ForeignKey(Event, default=1)
 
@@ -87,7 +87,7 @@ class Item(models.Model):
       super(Item, self).save(args, kwargs)
 
 class CurrentEvent(models.Model):
-  event_id = models.ForeignKey(Event)
+  event_id = models.ForeignKey(Event, on_delete=models.PROTECT)
   ## in case more than one entry exists, use most recent one
   last_touched = models.DateTimeField('date last touched')
 

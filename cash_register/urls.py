@@ -13,6 +13,6 @@ urlpatterns = [
     url(r'^vendors/$', baskets_views.vendors, name='vendors'),
 #    url(r'^vendors_new/$', baskets_views.vendors_new, name='vendors_new'),
     url(r'^vendors_all/$', baskets_views.vendors, {'show_all': True}, name='vendors_all'),
-    url(r'^vendors/vendors_to_pdf/$', baskets_views.vendors_to_pdf, name='vendors_to_pdf'),
+#    url(r'^vendors/vendors_to_pdf/$', baskets_views.vendors_to_pdf, name='vendors_to_pdf'),
 #    url(r'^.*$', RedirectView.as_view(url='baskets', permanent=False), name='index2'),
 ]

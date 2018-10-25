@@ -86,7 +86,7 @@ WSGI_APPLICATION = 'cash_register.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'krakiddy_oct2018',
+        'NAME': 'kkdj20',
         'USER': 'sebastian',
         'PASSWORD': 'sl1082',
         'HOST': 'localhost',
