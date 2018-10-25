@@ -3,7 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.template import loader
 from django.shortcuts import get_list_or_404, get_object_or_404
-from django.db.models import Sum, Count,F
+from django.db.models import Sum, Count,F,Q
 from django.contrib.auth.decorators import login_required
 
 from io import BytesIO
@@ -24,8 +24,20 @@ def redirect_index(request):
 @login_required
 def vendors(request, show_all=False):
   current_event = get_current_event()
-  vendors = Vendor.objects.annotate(sales=Sum('item__price')).annotate(num_sales=Count('item')).filter(events__in=(current_event,))
-  vendors = vendors.annotate(sales_net=F('sales')*0.88).annotate(sales_12p=F('sales')*0.12)
+  ceid = current_event.id
+  print ("current_event (id={}): {}".format(ceid, current_event))
+  test_q = Item.objects.filter(basket__event__in=(current_event,))
+  print ("test query of items in {}: {}".format(current_event, test_q))
+  vendors = Vendor.objects.filter(events__in=(current_event,))
+  #sales = Sum('item__price', filter=Q(item__basket__event__in=(current_event,)) )
+  sales = Sum('item__price', filter=Q(item__basket__event__id__gt=ceid) )
+  #num_sales = Count('item', filter=Q(item__basket__event__in=(current_event,)) )
+  num_sales = Count('item', filter=Q(item__basket__event=current_event) )
+  sales_net = F('sales')*0.88
+  sales_12p = F('sales')*0.12
+  print (str( vendors.annotate(sales=sales).annotate(num_sales=num_sales).query ) )
+  vendors = vendors.annotate(sales=sales).annotate(num_sales=num_sales)
+  vendors = vendors.annotate(sales_net=sales_net).annotate(sales_12p=sales_12p)
   vtotal = vendors.aggregate(sales_sum=Sum('sales'))
   vtotal['sales_sum_net']=vtotal['sales_sum']*0.88
   vtotal['sales_sum_12p']=vtotal['sales_sum']*0.12
@@ -95,7 +107,7 @@ def detail(request, basket_id):
 ### The following fails, if there are no items assigned to a basket. We do
 ### not want this behavior.
 #  item_list = get_list_or_404(Item, basket=basket_id)
-  item_list = Item.objects.filter(basket=basket_id)
+  item_list = Item.objects.filter(basket=basket_id).order_by('-created')
   basket_sum = Item.objects.filter(basket=basket_id).aggregate(Sum('price'))
   context = {
       'form': form,

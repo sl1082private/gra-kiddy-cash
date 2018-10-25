@@ -35,8 +35,8 @@
         {% endif %}
       {% endfor %}
         <tr>
-            <th> </th>
-            <th>Sum:</th>
+            {% comment %} <th> </th> {% endcomment %}
+            <th  colspan="2"> <div style="text-align:center">Summe:</div></th>
             <th>{{ vtotal.sales_sum|floatformat:-2 }} EUR </th>
             <th>{{ vtotal.sales_sum_net|floatformat:-2 }} EUR </th>
             <th>{{ vtotal.sales_sum_12p|floatformat:-2 }} EUR </th>

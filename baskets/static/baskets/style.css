@@ -12,18 +12,27 @@
   cursor: pointer;
 }
 
-.btn_plus {
-  float : left;
-}
-
 .btn_payed {
   float : right;
+  background-color: white;
+  color: red;
+  border: 2px solid red;
+}
+
+.btn_payed:hover {
+  color: gray;
+  border: 2px solid gray;
+}
+
+
+.btn_add {
+  float : left;
   background-color: white; 
   color: green; 
   border: 2px solid #4CAF50;
 }
 
-.btn_payed:hover {
+.btn_add:hover {
   color: gray; 
   border: 2px solid gray;
 
