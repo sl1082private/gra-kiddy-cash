@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'uj+2=zb!$r_cwe36pq_ns%6sos(fc47i!@tm!ieu@w!b463a3)'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 #ALLOWED_HOSTS = ['localhost','0.0.0.0','127.0.0.1','192.168.178.25']
 #ALLOWED_HOSTS = ['grakiddymarkt.pythonanywhere.com',]

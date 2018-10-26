@@ -76,7 +76,8 @@ def baskets(request):
 
 @login_required
 def vendor_detail(request, vendor_number):
-  vendor = Vendor.objects.get(vendor_number=vendor_number)
+#  vendor = Vendor.objects.get(vendor_number=vendor_number)
+  vendor = get_object_or_404(Vendor, vendor_number=vendor_number)
   if request.method == 'POST':
     form = VendorForm(request.POST, instance=vendor)
     if form.is_valid():
