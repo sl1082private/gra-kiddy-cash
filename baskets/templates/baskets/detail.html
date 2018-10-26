@@ -8,30 +8,31 @@
  
 
 {% block content %}
-
   <div class="w3-row-padding w3-padding-16 w3-center" id="food">
+    {% if item_list %}
+      <a href="{% url 'add_basket' %}" class="mybtn btn_payed">Neuer Korb</a>
+    {% endif %}
     <div class="w3-half w3-padding-16">
+
+      <form class="w3-container" method="post">{% csrf_token %}
+
+          {% for hidden_field in form.hidden_fields %}
+            {{ hidden_field.errors }}
+            {{ hidden_field }}
+          {% endfor %}
+          {% for field in form.visible_fields %}
+            <p>
+            {{ field.errors }}
+            {% render_field field class="w3-input w3-border" placeholder=field.label %}
+            </p>
+          {% endfor %}
+          <button class="mybtn btn_add">Pos. hinzu</button>
 {% comment %}
-      <form class="w3-container" action="{% url 'add_item' basket_id %}" method="post">
-{% endcomment %}
-      <form class="w3-container" method="post">
-      {% csrf_token %}
-
-  {% for hidden_field in form.hidden_fields %}
-    {{ hidden_field.errors }}
-    {{ hidden_field }}
-  {% endfor %}
-  {% for field in form.visible_fields %}
-    <p>
-    {{ field.errors }}
-    {% render_field field class="w3-input w3-border" placeholder=field.label %}
-    </p>
-  {% endfor %}
-
-        <button class="mybtn btn_add">hinzufügen</button>
+          <button class="mybtn btn_add">hinzufügen</button>
         {% if item_list %}
           <a href="{% url 'add_basket' %}" class="mybtn btn_payed">neu</a>
         {% endif %}
+{% endcomment %}
       </form>
     </div>
     <div class="w3-half">
@@ -44,7 +45,10 @@
       {% for item in item_list %}
         <tr>
           <td>{{ item.price|stringformat:".2f" }} EUR</td>
+          <td>#{{item.vendorID.vendor_number }}</td>
+{% comment %}
           <td>#{{item.vendorID.vendor_number|stringformat:"4.0f" }}</td>
+{% endcomment %}
           <td><a href="{% url 'delete_item' basket_id item.id%}" class="boldlink">X</a></td>
         </tr>
       {% endfor %}

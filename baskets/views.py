@@ -105,6 +105,7 @@ def detail(request, basket_id):
       vendor = get_object_or_404(Vendor, vendor_number=request.POST['vendor'])
       item = Item(basket=basket, vendorID=vendor, price=request.POST['price'], created_by=request.user)
       item.save()
+      return HttpResponseRedirect(reverse('detail', args=(basket_id,)))
     else:
       print ("form is not valid")
   else:

@@ -9,3 +9,4 @@ cash_register/settings.py
 djangoenv
 kkenv
 baskets/migrations
+cash_register/settings.py

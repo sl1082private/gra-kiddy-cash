@@ -17,7 +17,7 @@ class VendorForm(forms.ModelForm):
 
 class AddItemForm(forms.Form):
   vendor = forms.IntegerField(min_value=1, max_value = 150, required=True, label="Verkäufer")
-  price = forms.DecimalField(min_value=0, max_value= 1000, decimal_places=1, required=True, label="Preis")
+  price = forms.DecimalField(min_value=0, max_value= 1000, decimal_places=2, required=True, label="Preis")
 
   def clean_vendor(self):
     ## add filter for event here: check that vendors are allowed for this event!
@@ -25,7 +25,6 @@ class AddItemForm(forms.Form):
     if not self.cleaned_data.get('vendor') in _allowed_vendors:
       raise ValidationError("Verkäufer existiert nicht.")  #.format(_allowed_vendors))
     return self.cleaned_data
-
 
 
 #
