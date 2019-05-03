@@ -1,8 +1,10 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django.db import connection
 
-from .models import Item, Vendor
-
+from .models import Item, Vendor, CurrentEvent
+## The following would result in circular import; do it manually or move function to special helper file.
+#from baskets.views import get_current_event
 
 class VendorForm(forms.ModelForm):
 
@@ -16,12 +18,24 @@ class VendorForm(forms.ModelForm):
 
 
 class AddItemForm(forms.Form):
-  vendor = forms.IntegerField(min_value=1, max_value = 150, required=True, label="Verkäufer")
+  vendor = forms.IntegerField(min_value=1, max_value = 200, required=True, label="Verkäufer")
   price = forms.DecimalField(min_value=0, max_value= 1000, decimal_places=2, required=True, label="Preis")
 
   def clean_vendor(self):
-    ## add filter for event here: check that vendors are allowed for this event!
-    _allowed_vendors = Vendor.objects.values_list('vendor_number', flat=True)
+    current_event = CurrentEvent.objects.latest('last_touched').event_id 
+    current_event_id = current_event.id 
+    assert isinstance(current_event_id, int)
+    with connection.cursor() as cursor:
+      cursor.execute('''SELECT bv.vendor_number AS vn
+                        FROM baskets_vendor_events AS bve
+                        JOIN baskets_vendor AS bv 
+                          ON bv.id=bve.vendor_id
+                        WHERE event_id=%s 
+                        GROUP BY vn
+                        ORDER BY vn''',(current_event_id,))
+      _allowed_vendors = [vid[0] for vid in cursor.fetchall()]
+    ## This one simply checks if vendor exists:
+    #_allowed_vendors = Vendor.objects.values_list('vendor_number', flat=True)
     if not self.cleaned_data.get('vendor') in _allowed_vendors:
       raise ValidationError("Verkäufer existiert nicht.")  #.format(_allowed_vendors))
     return self.cleaned_data
