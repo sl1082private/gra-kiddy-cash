@@ -2,3 +2,4 @@ Django~=2.0.6
 psycopg2~=2.7.5
 numpy~=1.15.2
 django-widget-tweaks~=1.4.3
+gunicorn~=20.1.0

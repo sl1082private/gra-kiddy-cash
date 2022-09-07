@@ -34,15 +34,15 @@ def vendors(request, show_all=False):
   sales = Sum('item__price', filter=Q(item__basket__event=current_event) )
   #num_sales = Count('item', filter=Q(item__basket__event__in=(current_event,)) )
   num_sales = Count('item', filter=Q(item__basket__event=current_event) )
-  sales_net = F('sales')*0.88
-  sales_12p = F('sales')*0.12
+  sales_net = F('sales')*0.85
+  sales_12p = F('sales')*0.15
   #print (str( vendors.annotate(sales=sales).annotate(num_sales=num_sales).query ) )
   vendors = vendors.annotate(sales=sales).annotate(num_sales=num_sales)
   vendors = vendors.annotate(sales_net=sales_net).annotate(sales_12p=sales_12p)
   vtotal = vendors.aggregate(sales_sum=Sum('sales'))
   if vtotal['sales_sum']:
-    vtotal['sales_sum_net']=vtotal['sales_sum']*0.88
-    vtotal['sales_sum_12p']=vtotal['sales_sum']*0.12
+    vtotal['sales_sum_net']=vtotal['sales_sum']*0.85
+    vtotal['sales_sum_12p']=vtotal['sales_sum']*0.15
   else:
     vtotal = {}
 
@@ -76,8 +76,13 @@ def baskets(request):
 
 @login_required
 def vendor_detail(request, vendor_number):
-#  vendor = Vendor.objects.get(vendor_number=vendor_number)
-  vendor = get_object_or_404(Vendor, vendor_number=vendor_number)
+  # The following only works, as long as the vendor_number is unique. Unfortunately this is not true...
+  ## vendor = get_object_or_404(Vendor, vendor_number=vendor_number)
+  # However, for a given event, this has to be the case.
+  current_event = get_current_event()
+  queryset_vendor = Vendor.objects.filter(events__in=(current_event,), vendor_number=vendor_number)
+  vendor = get_object_or_404(queryset_vendor)
+
   if request.method == 'POST':
     form = VendorForm(request.POST, instance=vendor)
     if form.is_valid():
@@ -102,7 +107,13 @@ def detail(request, basket_id):
     if form.is_valid():
       #print ("form is valid")
       basket = get_object_or_404(Basket, pk=basket_id)
-      vendor = get_object_or_404(Vendor, vendor_number=request.POST['vendor'])
+      # The following only works, as long as the vendor_number is unique. Unfortunately this is not true...
+      ## vendor = get_object_or_404(Vendor, vendor_number=request.POST['vendor'])
+      # However, for a given event, this has to be the case.
+      current_event = get_current_event()
+      queryset_vendor = Vendor.objects.filter(events__in=(current_event,), vendor_number=request.POST['vendor'])
+      vendor = get_object_or_404(queryset_vendor)
+
       item = Item(basket=basket, vendorID=vendor, price=request.POST['price'], created_by=request.user)
       item.save()
       return HttpResponseRedirect(reverse('detail', args=(basket_id,)))

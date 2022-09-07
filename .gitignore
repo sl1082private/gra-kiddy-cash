@@ -12,3 +12,4 @@ baskets/migrations
 baskets/migrations/*
 cash_register/settings.py
 baskets/_migrations__20190503
+.kkenv_old
