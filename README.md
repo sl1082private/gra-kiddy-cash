@@ -33,6 +33,32 @@ pip install -r requirements.txt
 ./manage.py runserver 0.0.0.0:8000.0:8000
 
 
+## ##########################################
+## 24 Nov 2024 (Sebastian)
+## To create new database:
+# check for existing postgres databases:
+psql -d postgres
+\l
+# create new database
+$ sudo su - postgres
+postgres@somewhere:~$ createdb -O <user> <db_name>
+# make django aware of new database and modify settings.py
+modify settings.py and include new database name
+# do migratons (check basekets/migrations and consider making a saftey copy (dunno if needed)
+conda activate kkenv
+./manage.py makemigrations
+./manage.py migrate
+./manage.py createsuperuser
+# connect to project's admin page
+http://192.168.178.53/admin
+# and create event AND current_event
+# then add vendors and kassier
+add_vendors.ipynb
+kassierer_anlegen.ipynb
+print_credentials.ipynb
+## ##########################################
+
+
 # Modify/run add_vendors.ipynb in /home/sebastian/Computing/kra20/vendor_list to create and addvendors to event(s)
 
 # Testing gunicorn (from ~/Computing/kra20/krakiddy):
@@ -42,3 +68,7 @@ gunicorn --bind 0.0.0.0:8000 cash_register.wsgi
 sudo journalctl -u gunicorn.socket
 
 
+## Please select a value that is no more than XXX
+## If you encounter this error, but the vendor number is good, you have to adjust 
+## the correspoding "max_value" in the IntegerField in the file "krakiddy/baskets/forms.py"
+## afterwards restart gunicorn

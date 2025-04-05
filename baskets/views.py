@@ -34,15 +34,15 @@ def vendors(request, show_all=False):
   sales = Sum('item__price', filter=Q(item__basket__event=current_event) )
   #num_sales = Count('item', filter=Q(item__basket__event__in=(current_event,)) )
   num_sales = Count('item', filter=Q(item__basket__event=current_event) )
-  sales_net = F('sales')*0.85
-  sales_12p = F('sales')*0.15
+  sales_net = F('sales')*0.90
+  sales_12p = F('sales')*0.10
   #print (str( vendors.annotate(sales=sales).annotate(num_sales=num_sales).query ) )
   vendors = vendors.annotate(sales=sales).annotate(num_sales=num_sales)
   vendors = vendors.annotate(sales_net=sales_net).annotate(sales_12p=sales_12p)
   vtotal = vendors.aggregate(sales_sum=Sum('sales'))
   if vtotal['sales_sum']:
-    vtotal['sales_sum_net']=vtotal['sales_sum']*0.85
-    vtotal['sales_sum_12p']=vtotal['sales_sum']*0.15
+    vtotal['sales_sum_net']=vtotal['sales_sum']*0.90
+    vtotal['sales_sum_12p']=vtotal['sales_sum']*0.10
   else:
     vtotal = {}
 
