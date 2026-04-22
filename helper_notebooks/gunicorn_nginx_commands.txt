@@ -1,0 +1,21 @@
+sudo systemctl status gunicorn
+
+sudo service gunicorn start/stop
+sudo service gunicorn_tb start/stop  # service for tutorsbase
+## same works for nginx, e.g.:
+sudo service nginx restart
+
+sudo vim /etc/systemd/system/gunicorn.service
+
+{{
+sudo systemctl daemon-reload
+sudo systemctl restart gunicorn
+}}
+
+
+## in order to make krakiddy run:
+  * sudo ln -s /etc/nginx/sites-available/krakiddy /etc/nginx/sites-enabled
+  * sudo rm /etc/nginx/sites-enabled/tutorsbase
+  * sudo service gunicorn_tb stop
+  * sudo service gunicorn start
+  * sudo service nginx restart

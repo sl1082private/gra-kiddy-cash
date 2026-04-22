@@ -1,0 +1,11 @@
+If you encounter the error:
+
+"Please select a value that is no more than XXX"
+
+when trying to insert an item to a basket through the website, do the following:
+
+1. adjust the  correspoding "max_value" in the IntegerField in the file "krakiddy/baskets/forms.py" to be at least larger than XXX
+
+2. restart gunicorn: sudo systemctl restart gunicorn
+
+~                              
